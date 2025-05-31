@@ -1,0 +1,16 @@
+# Python / Django
+__pycache__/
+*.pyc
+db.sqlite3
+.env
+
+# VS Code
+.vscode/
+
+# Node / Vue
+chatire-frontend/node_modules/
+chatire-frontend/dist/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -72,8 +72,7 @@ export default {
     return {
       sessionStarted: false,
       messages: [],
-      message: '',
-      username: ''
+      message: ''
     }
   },
 
@@ -86,6 +85,10 @@ export default {
         xhr.setRequestHeader('Authorization', `Token ${sessionStorage.getItem('authToken')}`)
       }
     })
+
+    if (this.$route.params.uri) {
+      this.joinChatSession()
+    }
   },
 
   methods: {
@@ -107,6 +110,31 @@ export default {
         this.message = ''
       }).fail((response) => {
         alert(response.responseText)
+      })
+    },
+
+    joinChatSession () {
+      const uri = this.$route.params.uri
+      console.log(uri)
+
+      $.ajax({
+        url: `http://localhost:8000/api/chats/${uri}/`,
+        data: {username: this.username},
+        type: 'PATCH',
+        success: (data) => {
+          const user = data.members.find((member) => member.username === this.username)
+          if (user) {
+            // the user has joined the session
+            this.sessionStarted = true
+            this.fetchChatHistory()
+          }
+        }
+      })
+    },
+
+    fetchChatHistory () {
+      $.get(`http://127.0.0.1:8000/api/chats/${this.$route.params.uri}/messages/`, (data) => {
+        this.messages = data.messages
       })
     }
   }

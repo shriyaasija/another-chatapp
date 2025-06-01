@@ -89,6 +89,8 @@ export default {
     if (this.$route.params.uri) {
       this.joinChatSession()
     }
+
+    setInterval(this.fetchChatHistory, 3000)
   },
 
   methods: {

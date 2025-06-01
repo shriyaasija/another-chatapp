@@ -36,10 +36,10 @@
           </div>
 
           <div class="card-footer text-muted">
-            <form>
+            <form @submit.prevent="postMessage">
               <div class="row">
                 <div class="col-sm-10">
-                  <input type="text" placeholder="Type a message" />
+                  <input v-model="message" type="text" placeholder="Type a message" />
                 </div>
                 <div class="col-sm-2">
                   <button class="btn btn-primary">Send</button>
@@ -71,19 +71,18 @@ export default {
   data () {
     return {
       sessionStarted: false,
-      messages: [
-        {'status': 'SUCCESS"', 'uri': '1ca8f751963947c', 'message': 'hello', 'user': {'id': 1, 'username': 'shriya', 'email': '', 'first_name': '', 'last_name': ''}},
-        {'status': 'SUCCESS', 'uri': '1ca8f751963947c', 'message': 'hey', 'user': {'id': 2, 'username': 'shriya2', 'email': '', 'first_name': '', 'last_name': ''}}
-      ]
+      messages: [],
+      message: '',
+      username: ''
     }
   },
 
   created () {
     this.username = sessionStorage.getItem('username')
 
-    // setup headers for all requests
+    // Setup headers for all requests
     $.ajaxSetup({
-      beforeSend: function (xhr) {
+      beforeSend: (xhr) => {
         xhr.setRequestHeader('Authorization', `Token ${sessionStorage.getItem('authToken')}`)
       }
     })
@@ -94,11 +93,21 @@ export default {
       $.post('http://localhost:8000/api/chats/', (data) => {
         alert("A new session has been created. You'll be redirected automatically")
         this.sessionStarted = true
-        this.$router.push('/chats/chat_url/')
+        this.$router.push(`/chats/${data.uri}/`)
+      }).fail((response) => {
+        alert(response.responseText)
       })
-        .fail((response) => {
-          alert(response.responseText)
-        })
+    },
+
+    postMessage () {
+      const data = { message: this.message }
+
+      $.post(`http://localhost:8000/api/chats/${this.$route.params.uri}/messages/`, data, (data) => {
+        this.messages.push(data)
+        this.message = ''
+      }).fail((response) => {
+        alert(response.responseText)
+      })
     }
   }
 }
